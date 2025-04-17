@@ -1,0 +1,56 @@
+# Central configuration for the benchmark pipeline.
+# Override any field on the CLI, e.g. `--horizon 14`.
+
+seed: 42
+
+data:
+  source: "synthetic"          # "m5" | "synthetic"
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  # M5 horizon is 28 days (one validation window).
+  horizon: 28
+  # Length of history fed to context-based models.
+  context_length: 168
+  # Quantile levels for probabilistic evaluation (M5 uncertainty set).
+  quantiles: [0.005, 0.025, 0.165, 0.25, 0.5, 0.75, 0.835, 0.975, 0.995]
+  # Cap series count for quick runs; null = use all.
+  max_series: 500
+  freq: "D"
+  seasonality: 7               # weekly seasonality for daily retail data
+
+stratification:
+  # Syntetos-Boylan classification thresholds.
+  adi_threshold: 1.32          # average inter-demand interval
+  cv2_threshold: 0.49          # squared coefficient of variation
+  # Volume buckets (mean daily units) for the dense/tail split.
+  volume_buckets: [0.0, 1.0, 5.0, 1.0e9]
+  volume_labels: ["intermittent", "medium", "dense"]
+
+models:
+  seasonal_naive:
+    enabled: true
+    season_length: 7
+  croston:
+    enabled: true
+    variant: "sba"             # "classic" | "sba" | "tsb"
+    alpha: 0.1
+  patchtst:
+    enabled: true
+    patch_len: 16
+    stride: 8
+    d_model: 128
+    n_heads: 8
+    n_layers: 3
+    dropout: 0.2
+    epochs: 20
+    batch_size: 64
+    lr: 1.0e-3
+  chronos_bolt:
+    enabled: true
+    model_name: "amazon/chronos-bolt-small"
+    device: "auto"             # "auto" | "cpu" | "cuda"
+    num_samples: 20
+
+evaluation:
+  primary_metric: "wql"        # "wql" | "mase"
+  report_dir: "results"
