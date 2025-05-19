@@ -53,3 +53,64 @@ def rmsse(
 
 def mae(actual: np.ndarray, forecast: np.ndarray) -> float:
     return float(np.mean(np.abs(np.asarray(actual) - np.asarray(forecast))))
+
+
+# --------------------------------------------------------------------------- #
+# Probabilistic metrics                                                       #
+# --------------------------------------------------------------------------- #
+def quantile_loss(
+    actual: np.ndarray,
+    quantile_forecast: np.ndarray,
+    quantile_levels: np.ndarray,
+) -> np.ndarray:
+    """Pinball loss per quantile.
+
+    Parameters
+    ----------
+    actual : (H,) array
+    quantile_forecast : (Q, H) array
+    quantile_levels : (Q,) array
+
+    Returns
+    -------
+    (Q,) array of summed pinball losses per quantile level.
+    """
+    actual = np.asarray(actual, dtype=np.float64)[None, :]
+    q = np.asarray(quantile_forecast, dtype=np.float64)
+    levels = np.asarray(quantile_levels, dtype=np.float64)[:, None]
+    err = actual - q
+    loss = np.maximum(levels * err, (levels - 1.0) * err)
+    return loss.sum(axis=1)
+
+
+def wql(
+    actual: np.ndarray,
+    quantile_forecast: np.ndarray,
+    quantile_levels: np.ndarray,
+    scale: float | None = None,
+) -> float:
+    """Weighted Quantile Loss.
+
+    The total pinball loss across quantiles and horizon, normalised by the sum
+    of absolute actuals (or an explicit ``scale``). This is the GluonTS/Chronos
+    definition of WQL and is scale-free, so it can be averaged across series.
+    """
+    pinball = quantile_loss(actual, quantile_forecast, quantile_levels)
+    total = 2.0 * pinball.sum()  # factor 2 matches the GluonTS convention
+    denom = scale if scale is not None else float(np.sum(np.abs(actual)))
+    denom = denom if denom > 1e-8 else 1e-8
+    return float(total / denom)
+
+
+def coverage(
+    actual: np.ndarray,
+    quantile_forecast: np.ndarray,
+    quantile_levels: np.ndarray,
+) -> dict[float, float]:
+    """Empirical coverage: fraction of actuals at or below each quantile."""
+    actual = np.asarray(actual, dtype=np.float64)
+    q = np.asarray(quantile_forecast, dtype=np.float64)
+    return {
+        float(level): float(np.mean(actual <= q[i]))
+        for i, level in enumerate(np.asarray(quantile_levels))
+    }
