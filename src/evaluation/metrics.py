@@ -91,9 +91,11 @@ def wql(
 ) -> float:
     """Weighted Quantile Loss.
 
-    The total pinball loss across quantiles and horizon, normalised by the sum
-    of absolute actuals (or an explicit ``scale``). This is the GluonTS/Chronos
-    definition of WQL and is scale-free, so it can be averaged across series.
+    The total pinball loss across quantiles and horizon, normalised by a
+    ``scale``. By default the scale is the sum of absolute actuals (the
+    GluonTS/Chronos convention). For per-series stratified analysis on
+    zero-heavy demand, pass an in-sample ``scale`` (e.g. seasonal-naive MAE x
+    horizon) so the metric stays finite when the test window is all zeros.
     """
     pinball = quantile_loss(actual, quantile_forecast, quantile_levels)
     total = 2.0 * pinball.sum()  # factor 2 matches the GluonTS convention

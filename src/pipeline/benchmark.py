@@ -14,7 +14,7 @@ from tqdm import tqdm
 
 from src.data.dataset import SeriesPanel, TimeSeries
 from src.data.preprocessing import classify_series
-from src.evaluation.metrics import mase, rmsse, wql
+from src.evaluation.metrics import _seasonal_naive_scale, mase, rmsse, wql
 from src.models.base import Forecaster
 from src.utils import Config, get_logger
 
@@ -70,6 +70,12 @@ def run_benchmark(
         history, actual = ts.split(horizon)
         stats = classify_series(ts, **classify_kwargs)
 
+        # In-sample scale (seasonal-naive MAE x horizon). Using an in-sample
+        # denominator keeps WQL finite and comparable even when a series has no
+        # demand in the test window — the GluonTS convention of dividing by the
+        # test-window |actuals| explodes on the zero-heavy intermittent tail.
+        scale = _seasonal_naive_scale(history.values, season) * horizon
+
         for model in models:
             fc = model.predict(history, horizon, quantile_levels)
             row = {
@@ -77,7 +83,7 @@ def run_benchmark(
                 "model": model.name,
                 "mase": mase(actual, fc.point, history.values, season),
                 "rmsse": rmsse(actual, fc.point, history.values, season),
-                "wql": wql(actual, fc.quantiles, fc.quantile_levels),
+                "wql": wql(actual, fc.quantiles, fc.quantile_levels, scale=scale),
                 "sb_class": stats.sb_class,
                 "volume_bucket": stats.volume_bucket,
                 "mean_demand": stats.mean,
