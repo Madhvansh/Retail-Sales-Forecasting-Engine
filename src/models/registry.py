@@ -29,26 +29,29 @@ def build_models(cfg: Config, quantile_levels: np.ndarray, seed: int = 42) -> li
         models.append(Croston(variant=c.get("variant", "sba"), alpha=c.get("alpha", 0.1), seed=seed))
 
     if m.get("patchtst", {}).get("enabled", False):
-        from src.models.patchtst import PatchTST
+        try:
+            from src.models.patchtst import PatchTST
 
-        p = m.patchtst
-        models.append(
-            PatchTST(
-                context_length=context,
-                horizon=horizon,
-                quantile_levels=quantile_levels,
-                patch_len=p.get("patch_len", 16),
-                stride=p.get("stride", 8),
-                d_model=p.get("d_model", 128),
-                n_heads=p.get("n_heads", 8),
-                n_layers=p.get("n_layers", 3),
-                dropout=p.get("dropout", 0.2),
-                epochs=p.get("epochs", 20),
-                batch_size=p.get("batch_size", 64),
-                lr=p.get("lr", 1e-3),
-                seed=seed,
+            p = m.patchtst
+            models.append(
+                PatchTST(
+                    context_length=context,
+                    horizon=horizon,
+                    quantile_levels=quantile_levels,
+                    patch_len=p.get("patch_len", 16),
+                    stride=p.get("stride", 8),
+                    d_model=p.get("d_model", 128),
+                    n_heads=p.get("n_heads", 8),
+                    n_layers=p.get("n_layers", 3),
+                    dropout=p.get("dropout", 0.2),
+                    epochs=p.get("epochs", 20),
+                    batch_size=p.get("batch_size", 64),
+                    lr=p.get("lr", 1e-3),
+                    seed=seed,
+                )
             )
-        )
+        except ImportError as exc:
+            log.warning("Skipping PatchTST (%s). Install torch to enable it.", exc)
 
     if m.get("chronos_bolt", {}).get("enabled", False):
         from src.models.chronos_bolt import ChronosBolt
