@@ -51,7 +51,7 @@ class Forecaster(ABC):
     #: Whether the model is trained globally on the whole panel.
     is_global: bool = False
 
-    def fit(self, panel: SeriesPanel) -> "Forecaster":  # noqa: D401
+    def fit(self, panel: SeriesPanel) -> Forecaster:  # noqa: D401
         """Optional global training step. Local models can ignore this."""
         return self
 

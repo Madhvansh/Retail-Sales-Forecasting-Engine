@@ -23,7 +23,7 @@ class TimeSeries:
     def __len__(self) -> int:
         return self.values.shape[0]
 
-    def split(self, horizon: int) -> tuple["TimeSeries", np.ndarray]:
+    def split(self, horizon: int) -> tuple[TimeSeries, np.ndarray]:
         """Return (history, future) where future has length ``horizon``."""
         if horizon >= len(self):
             raise ValueError(
@@ -57,7 +57,7 @@ class SeriesPanel:
     def __getitem__(self, idx: int) -> TimeSeries:
         return self.series[idx]
 
-    def subset(self, n: int | None) -> "SeriesPanel":
+    def subset(self, n: int | None) -> SeriesPanel:
         if n is None or n >= len(self.series):
             return self
         return SeriesPanel(self.series[:n], name=self.name, seasonality=self.seasonality)

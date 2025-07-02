@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        # Core scientific stack only — the unit tests exercise the classical
+        # path and a disabled PatchTST/Chronos, so torch is not required in CI.
+        run: |
+          python -m pip install --upgrade pip
+          pip install numpy pandas scipy pyyaml tqdm matplotlib tabulate \
+                      fastapi pydantic pytest ruff
+          pip install -e . --no-deps
+
+      - name: Lint
+        run: ruff check src scripts app tests
+
+      - name: Run tests
+        run: pytest -q

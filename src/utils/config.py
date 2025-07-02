@@ -52,7 +52,7 @@ class Config(dict):
             out[key] = value.to_dict() if isinstance(value, Config) else value
         return out
 
-    def copy(self) -> "Config":
+    def copy(self) -> Config:
         return Config(copy.deepcopy(self.to_dict()))
 
 

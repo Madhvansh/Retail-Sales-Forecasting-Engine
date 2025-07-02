@@ -148,7 +148,7 @@ class PatchTST(Forecaster):
         self.lr = lr
         self.seed = seed
         self.device = self._resolve_device(device)
-        self.net: "_PatchTSTNet | None" = None
+        self.net: _PatchTSTNet | None = None
 
     @staticmethod
     def _resolve_device(device: str) -> str:
@@ -156,14 +156,14 @@ class PatchTST(Forecaster):
             return device
         return "cuda" if _TORCH and torch.cuda.is_available() else "cpu"
 
-    def _pinball(self, pred: "torch.Tensor", target: "torch.Tensor") -> "torch.Tensor":
+    def _pinball(self, pred: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
         # pred: (B, H, Q), target: (B, H)
         levels = torch.tensor(self.quantile_levels, device=pred.device).view(1, 1, -1)
         err = target.unsqueeze(-1) - pred
         loss = torch.maximum(levels * err, (levels - 1.0) * err)
         return loss.mean()
 
-    def fit(self, panel: SeriesPanel) -> "PatchTST":
+    def fit(self, panel: SeriesPanel) -> PatchTST:
         torch.manual_seed(self.seed)
         ds = _WindowDataset(panel, self.context_length, self.horizon)
         if len(ds) == 0:
