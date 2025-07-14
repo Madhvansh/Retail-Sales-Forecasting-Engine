@@ -1,0 +1,7 @@
+title: Retail Demand Forecasting — Foundation vs. Supervised
+description: >-
+  Benchmarking time-series foundation models (Chronos-Bolt, zero-shot) against
+  supervised (PatchTST) and classical (seasonal-naive, Croston) baselines on the
+  M5 Walmart dataset, scored with MASE and WQL.
+theme: jekyll-theme-cayman
+show_downloads: true

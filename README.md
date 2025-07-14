@@ -1,9 +1,14 @@
 # Retail Demand Forecasting — Foundation Models vs. Supervised
 
 [![CI](https://github.com/Madhvansh/Retail-Sales-Forecasting-Engine/actions/workflows/ci.yml/badge.svg)](https://github.com/Madhvansh/Retail-Sales-Forecasting-Engine/actions/workflows/ci.yml)
+[![Website](https://img.shields.io/badge/website-GitHub%20Pages-success)](https://madhvansh.github.io/Retail-Sales-Forecasting-Engine/)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.1%2B-ee4c2c)
+
+📖 **Project site:** https://madhvansh.github.io/Retail-Sales-Forecasting-Engine/
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Madhvansh/Retail-Sales-Forecasting-Engine)
 
 Benchmarking time-series **foundation models** against **supervised** and
 **classical** baselines on the **M5 (Walmart)** retail dataset —
@@ -168,7 +173,14 @@ curl -s localhost:8000/forecast -H 'content-type: application/json' \
 ```bash
 docker compose up      # API :8000 + dashboard :8501
 ```
-See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for cloud deployment.
+
+### One-click cloud deploy
+A [`render.yaml`](render.yaml) blueprint deploys both the API and the dashboard
+as containers. Click the button (or run `render blueprint launch`):
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Madhvansh/Retail-Sales-Forecasting-Engine)
+
+See [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) for AWS / GCP / Azure / Fly.io.
 
 ---
 
